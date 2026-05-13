@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tin nhắn từ xa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Card chính */
+        .card {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .sub {
+            color: #666;
+            margin-bottom: 25px;
+            border-left: 4px solid #764ba2;
+            padding-left: 15px;
+        }
+
+        /* Nút bấm */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Ô nhập nội dung */
+        .editor-area {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        /* Khung hiển thị kết quả */
+        .preview-area {
+            background: #f9fafb;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #374151;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-content {
+            background: white;
+            border: 2px dashed #d1d5db;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            font-size: 24px;
+            line-height: 1.5;
+            color: #1f2937;
+            min-height: 200px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* Thông báo */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Link box */
+        .link-box {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+
+        .link-box a {
+            color: #764ba2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .status-saved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+            .preview-content {
+                font-size: 18px;
+                padding: 25px 15px;
+            }
+            .btn {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Card chính: Soạn thảo nội dung -->
+    <div class="card">
+        <h1>📝 Quản lý tin nhắn từ xa</h1>
+        <div class="sub">
+            🔧 Bước 1: Sửa nội dung → 💾 Bước 2: Lưu → 🔄 Bước 3: Reload để xem thành quả
+        </div>
+
+        <div class="editor-area">
+            <label>📝 SỬA NỘI DUNG:</label>
+            <textarea id="messageEditor" rows="5" placeholder="Nhập dòng chữ bạn muốn hiển thị..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="saveContent()">💾 SAVE (Lưu nội dung)</button>
+            <button class="btn btn-warning" onclick="reloadPage()">🔄 RELOAD (Tải lại trang)</button>
+            <button class="btn btn-secondary" onclick="loadSavedContent()">📂 Đọc nội dung đã lưu</button>
+            <button class="btn btn-success" onclick="createShareLink()">🔗 Tạo link chia sẻ</button>
+        </div>
+
+        <!-- Hiển thị link chia sẻ -->
+        <div id="shareLinkContainer" style="display: none;">
+            <div class="link-box">
+                <strong>✅ Link để xem từ xa:</strong><br>
+                <a href="#" id="shareLink" target="_blank"></a><br>
+                <button class="btn" style="margin-top: 10px; background: #764ba2;" onclick="copyShareLink()">📋 Sao chép link</button>
+            </div>
+        </div>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <!-- Card hiển thị kết quả -->
+    <div class="card">
+        <div class="preview-area">
+            <div class="preview-title">
+                <span>👁️ KẾT QUẢ HIỂN THỊ (sau khi Reload)</span>
+            </div>
+            <div class="preview-content" id="displayContent">
+                Chưa có nội dung. Hãy nhập và nhấn SAVE, sau đó RELOAD.
+            </div>
+        </div>
+
+        <div style="margin-top: 15px; font-size: 13px; color: #6b7280; text-align: center;">
+            💡 Gợi ý: Nhập nội dung → SAVE → RELOAD → Xem thành quả bên trên
+        </div>
+    </div>
+</div>
+
+<script>
+    // Key lưu trong localStorage
+    const STORAGE_KEY = 'my_remote_message';
+
+    // Hàm hiển thị thông báo
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.background = isError ? '#ef4444' : '#10b981';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 2500);
+    }
+
+    // 1. SAVE - Lưu nội dung vào localStorage
+    function saveContent() {
+        const content = document.getElementById('messageEditor').value;
+        if (content.trim() === "") {
+            showToast("⚠️ Vui lòng nhập nội dung trước khi lưu!", true);
+            return;
+        }
+        
+        localStorage.setItem(STORAGE_KEY, content);
+        
+        // Hiển thị thông báo thành công
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.innerHTML = '<div class="status status-saved">✅ Đã lưu thành công! Nhấn RELOAD để xem nội dung mới.</div>';
+        
+        showToast("💾 Đã lưu nội dung thành công!");
+        
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 3000);
+    }
+
+    // 2. RELOAD - Tải lại trang
+    function reloadPage() {
+        // Lưu lại nội dung hiện tại vào editor trước khi reload (nếu có thay đổi)
+        const currentContent = document.getElementById('messageEditor').value;
+        if (currentContent.trim() !== "") {
+            localStorage.setItem(STORAGE_KEY, currentContent);
+        }
+        
+        showToast("🔄 Đang tải lại trang...");
+        setTimeout(() => {
+            window.location.reload();
+        }, 200);
+    }
+
+    // 3. Đọc nội dung đã lưu và hiển thị lên editor
+    function loadSavedContent() {
+        const savedContent = localStorage.getItem(STORAGE_KEY);
+        if (savedContent) {
+            document.getElementById('messageEditor').value = savedContent;
+            showToast("📂 Đã tải nội dung đã lưu vào khung soạn thảo");
+        } else {
+            showToast("❌ Chưa có nội dung nào được lưu trước đó!", true);
+        }
+    }
+
+    // Tải nội dung đã lưu để hiển thị khi trang vừa load
+    function loadAndDisplayContent() {
+        const savedContent = localStorage.getItem(STORAGE_KEY);
+        const displayDiv = document.getElementById('displayContent');
+        
+        if (savedContent && savedContent.trim() !== "") {
+            // Hiển thị nội dung đã lưu
+            displayDiv.innerHTML = savedContent.replace(/\n/g, '<br>');
+            // Đồng thời đưa vào ô editor để dễ chỉnh sửa
+            document.getElementById('messageEditor').value = savedContent;
+        } else {
+            displayDiv.innerHTML = '📭 Chưa có nội dung nào. Hãy nhập tin nhắn bên trên và nhấn "SAVE" nhé!';
+            document.getElementById('messageEditor').value = '';
+        }
+    }
+
+    // Tạo link chia sẻ (xem từ xa)
+    function createShareLink() {
+        let content = document.getElementById('messageEditor').value;
+        
+        if (content.trim() === "") {
+            // Thử lấy từ localStorage
+            content = localStorage.getItem(STORAGE_KEY);
+            if (!content || content.trim() === "") {
+                showToast("❌ Vui lòng nhập nội dung hoặc SAVE trước khi tạo link!", true);
+                return;
+            }
+        }
+        
+        // Lưu lại trước khi tạo link
+        localStorage.setItem(STORAGE_KEY, content);
+        
+        // Mã hóa nội dung
+        let encodedMessage = encodeURIComponent(content);
+        let currentUrl = window.location.href.split('?')[0];
+        let fullLink = currentUrl + '?msg=' + encodedMessage;
+        
+        // Hiển thị link
+        let linkContainer = document.getElementById('shareLinkContainer');
+        let shareLink = document.getElementById('shareLink');
+        
+        shareLink.href = fullLink;
+        shareLink.textContent = fullLink;
+        linkContainer.style.display = 'block';
+        
+        showToast("🔗 Đã tạo link chia sẻ! Nhấn 'Sao chép link' để gửi cho người khác.");
+        
+        // Cuộn đến link
+        linkContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Sao chép link chia sẻ
+    function copyShareLink() {
+        let linkElement = document.getElementById('shareLink');
+        let linkText = linkElement.textContent;
+        
+        navigator.clipboard.writeText(linkText).then(() => {
+            showToast("✅ Đã sao chép link! Gửi link này cho bất kỳ ai để họ xem từ xa.");
+        }).catch(() => {
+            alert("⚠️ Vui lòng bôi đen link và copy thủ công.");
+        });
+    }
+
+    // Kiểm tra nếu có tham số ?msg= trên URL (người khác xem từ xa)
+    function checkMessageFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const msgFromURL = urlParams.get('msg');
+        
+        if (msgFromURL !== null && msgFromURL !== "") {
+            let decodedMessage = decodeURIComponent(msgFromURL);
+            // Hiển thị lên màn hình
+            document.getElementById('displayContent').innerHTML = decodedMessage.replace(/\n/g, '<br>');
+            // Lưu vào localStorage để tiện
+            localStorage.setItem(STORAGE_KEY, decodedMessage);
+            // Đưa lên editor
+            document.getElementById('messageEditor').value = decodedMessage;
+            
+            // Đổi giao diện nhẹ cho biết đang ở chế độ xem link
+            const title = document.querySelector('h1');
+            if (title) title.innerHTML = "📬 Xem tin nhắn từ xa";
+        } else {
+            // Không có link, hiển thị nội dung đã lưu từ trước
+            loadAndDisplayContent();
+        }
+    }
+
+    // Khởi tạo khi trang load
+    checkMessageFromURL();
+</script>
+</body>
+</html>
